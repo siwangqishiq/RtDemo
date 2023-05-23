@@ -15,8 +15,14 @@ void ShaderDemo::init(){
     }
     isInited = true;
 
+    // customRenderShader = ShaderManager::getInstance()->loadAssetShader(
+    //     "shader_demo","shader/shader_vert.glsl","shader/shader_frag.glsl");
+
+    // customRenderShader = ShaderManager::getInstance()->loadAssetShader(
+    //     "shader_demo","shader/shader_vert.glsl","shader/demo1.glsl");
+    
     customRenderShader = ShaderManager::getInstance()->loadAssetShader(
-        "shader_demo","shader/shader_vert.glsl","shader/shader_frag.glsl");
+        "shader_demo","shader/shader_vert.glsl","shader/demo2.glsl");
 }
 
 void ShaderDemo::tick(){
@@ -35,14 +41,16 @@ void ShaderDemo::testRenderShader(){
     viewRect.width = viewWidth_;
     viewRect.height = viewHeight_;
 
-    Paint paint;
-    renderEngine_->getShapeBatch()->begin();
-    renderEngine_->getShapeBatch()->renderRect(viewRect , paint);
-    renderEngine_->getShapeBatch()->end();
+    // Paint paint;
+    // renderEngine_->getShapeBatch()->begin();
+    // renderEngine_->getShapeBatch()->renderRect(viewRect , paint);
+    // renderEngine_->getShapeBatch()->end();
 
     // Logi("ShaderDemo" , "testRenderShader");
     renderEngine_->renderShader(customRenderShader , viewRect, [this](){
         customRenderShader.setUniformFloat("uViewWidth",viewWidth_);
         customRenderShader.setUniformFloat("uViewHeight",viewHeight_);
     });
+
+    
 }

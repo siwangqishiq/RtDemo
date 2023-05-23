@@ -21,8 +21,8 @@ class Application {
 public:
     const std::string TAG = "Application"; 
 
-    int viewWidth_ = 1280;
-    int viewHeight_ = 800;
+    int viewWidth_ = 1024;
+    int viewHeight_ = 576;
 
     int screenWidth_ = viewWidth_;
     int screenHeight_ = viewHeight_;
@@ -74,5 +74,5 @@ private:
 
     bool showNumber = false;
     int showFps = 0;
-
+    
 };
