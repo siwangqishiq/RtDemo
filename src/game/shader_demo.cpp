@@ -15,14 +15,8 @@ void ShaderDemo::init(){
     }
     isInited = true;
 
-    // customRenderShader = ShaderManager::getInstance()->loadAssetShader(
-    //     "shader_demo","shader/shader_vert.glsl","shader/shader_frag.glsl");
-
-    // customRenderShader = ShaderManager::getInstance()->loadAssetShader(
-    //     "shader_demo","shader/shader_vert.glsl","shader/demo1.glsl");
-    
     customRenderShader = ShaderManager::getInstance()->loadAssetShader(
-        "shader_demo","shader/shader_vert.glsl","shader/demo2.glsl");
+        "shader_demo","shader/shader_vert.glsl","shader/demo4.glsl");
 }
 
 void ShaderDemo::tick(){

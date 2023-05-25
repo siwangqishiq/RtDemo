@@ -7,50 +7,47 @@ out vec4 FragColor;
 
 const vec3 WHITE_COLOR = vec3(1.0 , 1.0 , 1.0);
 const vec3 SKYBLUE_COLOR = vec3(0.5, 0.7, 1.0);
+const vec3 RED_COLOR = vec3(1.0 , 0.0 , 0.0);
 
 struct Ray{
     vec3 origin;
     vec3 dir;
 };
 
-struct Camera{
-    vec3 pos;
+struct Sphere{
+    vec3 center;
+    float radius;
 };
 
-struct Object{
-    int index;
-    vec3 pos;
-};
-
-const int LIST_MAX_SIZE = 100;
-struct List{
-    int size;
-    Object data[LIST_MAX_SIZE];
-};
-bool addList(inout List list , Object item){
-    if(list.size + 1 >= LIST_MAX_SIZE){
-        return false;
-    }
-
-    list.data[list.size] = item;
-    list.size += 1;
-    return true;
+//检测射线是否与球体相交
+bool checkRaySphereHit(inout Ray ray ,inout Sphere sphere){
+    float A = 1.0f;
+    float B = 2 * dot(ray.origin , ray.dir) + 2 * dot(sphere.center , ray.dir);
+    float C = dot(sphere.center, sphere.center) + dot(ray.origin , ray.origin) - 
+        sphere.radius * sphere.radius - 2 * dot(ray.origin , sphere.center);
+    
+    float delta = B * B - 4 * A * C;
+    return delta > 0;
 }
-
 
 //光线追踪着色
 vec3 rayColor(Ray ray){
+    Sphere sphere = Sphere(vec3(0.0, 0.0 ,2.0) , 0.5);
+    if(checkRaySphereHit(ray , sphere)){
+        return RED_COLOR;
+    }
+
+    // background
     float t = 0.5 * (ray.dir.y + 1.0);
     return WHITE_COLOR* (1.0 - t) + SKYBLUE_COLOR * (t);
-    // return SKYBLUE_COLOR;
 }
+
 
 void main(){
     float aspect = uViewWidth / uViewHeight;
-
-    const float viewPortWidth = 2.0; //视口宽度
-    float viewPortHeight = viewPortWidth / aspect; //视口高度
-    const float focal = 1.0f;//焦距
+    const float viewPortWidth = 2.0f;
+    float viewPortHeight = viewPortWidth / aspect;
+    float focal = 1.0;//焦距
 
     const vec3 origin = vec3(0.0 , 0.0 , 0.0); //射线起始点
 
@@ -60,7 +57,7 @@ void main(){
     
     vec3 bottomLeftPos = origin - translateX / 2.0f - translateY / 2.0f - translateZ;
 
-    vec2 uvCoord = vec2(gl_FragCoord.x / uViewWidth , gl_FragCoord.y / uViewHeight); 
+    vec2 uvCoord = vec2(gl_FragCoord.x / uViewWidth , (gl_FragCoord.y / uViewHeight)); 
     vec3 position = bottomLeftPos + uvCoord.x * translateX + uvCoord.y * translateY - origin;
 
     Ray ray;
@@ -70,6 +67,5 @@ void main(){
     vec3 color;
     color = rayColor(ray);
 
-    //  doTest();
     FragColor = vec4(color.xyz ,1.0);
 }

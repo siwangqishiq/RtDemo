@@ -24,6 +24,9 @@ public:
     int viewWidth_ = 1024;
     int viewHeight_ = 576;
 
+    // int viewWidth_ = 512;
+    // int viewHeight_ = 288;
+
     int screenWidth_ = viewWidth_;
     int screenHeight_ = viewHeight_;
     
