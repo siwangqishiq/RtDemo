@@ -97,6 +97,7 @@ void main(){
     // for(int i = 0 ; i < 200000;i++){
     //     test = test + 0.01;
     // }
+    // FragColor = vec4(color.xyz , test);
 
     FragColor = vec4(color.xyz , 1.0);
 }
