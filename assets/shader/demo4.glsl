@@ -54,7 +54,7 @@ vec3 rayColor(Ray ray){
 
     HitResult hitResult = HitResult(false , -1.0);
     raySphereHit(ray , sphere , hitResult);
-
+    
     if(hitResult.isHit){
         vec3 hitPos = ray.origin + ray.dir * hitResult.timeValue;
         vec3 N = normalize(hitPos - sphere.center);
@@ -92,5 +92,11 @@ void main(){
     
     vec3 color;
     color = rayColor(ray);
-    FragColor = vec4(color.xyz ,1.0);
+
+    // float test = 0.0;
+    // for(int i = 0 ; i < 200000;i++){
+    //     test = test + 0.01;
+    // }
+
+    FragColor = vec4(color.xyz , 1.0);
 }

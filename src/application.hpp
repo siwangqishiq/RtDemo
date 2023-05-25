@@ -81,4 +81,5 @@ private:
     bool showNumber = false;
     int showFps = 0;
     
+    unsigned int query;
 };

@@ -30,6 +30,10 @@ void Application::onFree(){
     if(renderEngine_ != nullptr){
         renderEngine_->free();
     }
+    
+    GLuint querys[1];
+    querys[0] = query;
+    glDeleteQueries(1, querys);
 }   
 
 void Application::init(){
@@ -105,6 +109,8 @@ void Application::onInit(){
     // auto info2 = TextureManager::getInstance()->acquireTexture("text/font_texture_1.png");
 
     timeStamp_ = currentTimeMicro();
+    glGenQueries(1 , &query);
+
     onCreate();
 }
 
@@ -127,7 +133,26 @@ void Application::onCreate(){
 void Application::onTick(){
     // Log(TAG , "app trick");
     // Logi(TAG , "getLastFrameDeltaTimeMirco = %lld" , getLastFrameDeltaTime());
+
+    #ifdef _WIN32
+    glBeginQuery(GL_TIME_ELAPSED , query);
+    #elif _WIN64
+    glBeginQuery(GL_TIME_ELAPSED , query);
+    #elif __CYGWIN__
+    glBeginQuery(GL_TIME_ELAPSED , query);
+    #elif __ANDROID__
+    glBeginQuery(GL_TIME_ELAPSED_EXT , query);
+    #elif __linux__
+    glBeginQuery(GL_TIME_ELAPSED , query);
+    #elif _UNIX
+    glBeginQuery(GL_TIME_ELAPSED , query);
+    #elif __APPLE__
+    glBeginQuery(GL_TIME_ELAPSED , query);
+    #endif
+
+
     
+
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -155,7 +180,29 @@ void Application::onTick(){
     auto deltaTime = timeEnd - timeStart;
     frameCount_++;
 
-    // Logi(TAG , "frame cost time : %ld" , deltaTime);
+    // glQueryCounter(query , GL_TIME_ELAPSED);
+
+    
+    #ifdef _WIN32
+    glEndQuery(GL_TIME_ELAPSED);
+    #elif _WIN64
+    glEndQuery(GL_TIME_ELAPSED);
+    #elif __CYGWIN__
+    glEndQuery(GL_TIME_ELAPSED);
+    #elif __ANDROID__
+    glEndQuery(GL_TIME_ELAPSED_EXT);
+    #elif __linux__
+    glEndQuery(GL_TIME_ELAPSED);
+    #elif _UNIX
+    glEndQuery(GL_TIME_ELAPSED);
+    #elif __APPLE__
+    glEndQuery(GL_TIME_ELAPSED);
+    #endif
+
+    GLuint gpuRenderCostTime; //GPU渲染花费时间 (单位 纳秒nano)
+    glGetQueryObjectuiv(query , GL_QUERY_RESULT, &gpuRenderCostTime);
+    
+    // Logi(TAG , "frame cost time : %d" , gpuRenderCostTime);
 }
 
 void Application::updateSence(){
