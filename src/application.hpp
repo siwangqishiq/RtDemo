@@ -17,15 +17,18 @@ class ShaderDemo;
  * @brief  应用入口
  * 
  */
+static int VIEW_WIDTH = 1024;
+static int VIEW_HEIGHT = 576;
+
+// int viewWidth_ = 512;
+// int viewHeight_ = 288;
+
 class Application {
 public:
     const std::string TAG = "Application"; 
 
-    int viewWidth_ = 1024;
-    int viewHeight_ = 576;
-
-    // int viewWidth_ = 512;
-    // int viewHeight_ = 288;
+    int viewWidth_ = VIEW_WIDTH;
+    int viewHeight_ = VIEW_HEIGHT;
 
     int screenWidth_ = viewWidth_;
     int screenHeight_ = viewHeight_;

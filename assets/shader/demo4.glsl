@@ -26,7 +26,6 @@ struct HitResult{
 
 //检测射线是否与球体相交
 void raySphereHit(Ray ray ,Sphere sphere , inout HitResult result){
-
     vec3 oc = ray.origin - sphere.center;
     float A = dot(ray.dir , ray.dir);
     float B = 2.0 * dot(oc , ray.dir);

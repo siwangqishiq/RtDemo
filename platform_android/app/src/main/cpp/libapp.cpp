@@ -66,3 +66,15 @@ Java_panyi_xyz_textrender_NativeBridge_setAndroidAssetManager(JNIEnv *env, jclas
                                                               jobject mgr) {
     AndroidAssetManagerInstance = AAssetManager_fromJava(env , mgr);
 }
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_panyi_xyz_textrender_NativeBridge_getViewWidth(JNIEnv *env, jclass clazz) {
+    return VIEW_WIDTH;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_panyi_xyz_textrender_NativeBridge_getViewHeight(JNIEnv *env, jclass clazz) {
+    return VIEW_HEIGHT;
+}

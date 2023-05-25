@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 import java.util.Timer;
 
@@ -15,6 +17,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class MainActivity extends AppCompatActivity {
     private MainView mMainView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,9 +25,13 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_main);
 
+        FrameLayout containerView = findViewById(R.id.root_view);
         mMainView = new MainView(this);
-        setContentView(mMainView);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(NativeBridge.getViewWidth() , NativeBridge.getViewHeight());
+        params.gravity = Gravity.CENTER;
+        containerView.addView(mMainView , params);
     }
 
     @Override
@@ -37,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private static class MainView extends GLSurfaceView implements GLSurfaceView.Renderer {
+    private class MainView extends GLSurfaceView implements GLSurfaceView.Renderer {
         public MainView(Context context) {
             super(context);
             initView(context);
