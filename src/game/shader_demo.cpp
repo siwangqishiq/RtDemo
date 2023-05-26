@@ -16,7 +16,7 @@ void ShaderDemo::init(){
     isInited = true;
 
     customRenderShader = ShaderManager::getInstance()->loadAssetShader(
-        "shader_demo","shader/shader_vert.glsl","shader/demo5.glsl");
+        "shader_demo","shader/shader_vert.glsl","shader/demo6.glsl");
 }
 
 void ShaderDemo::tick(){
@@ -44,6 +44,7 @@ void ShaderDemo::testRenderShader(){
     renderEngine_->renderShader(customRenderShader , viewRect, [this](){
         customRenderShader.setUniformFloat("uViewWidth",viewWidth_);
         customRenderShader.setUniformFloat("uViewHeight",viewHeight_);
+        customRenderShader.setUniformFloat("uTime" , static_cast<float>(appContext->frameCount_));
     });
 
     

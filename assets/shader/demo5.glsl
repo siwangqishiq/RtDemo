@@ -35,7 +35,7 @@ bool worldAddSphere(inout World world , Sphere sphere){
     if(world.count + 1 > WORLD_MAX_OBJECT_COUNT){
         return false;
     }
-
+    
     world.objList[world.count] = sphere;
     world.count = world.count + 1;
     return true;
