@@ -1,7 +1,7 @@
 precision mediump float;
 
-in vec2 vUv;
-out vec4 outColor;
+in vec2 vUv; 
+out vec4 outColor; 
 
 uniform sampler2D fontTexture;
 uniform vec4 textColor;
