@@ -214,6 +214,8 @@ void Application::updateSence(){
         p4.textColor = showFps >=50
             ? glm::vec4(0.0f ,1.0f , 0.0f , 1.0f)
             : glm::vec4(1.0f , 0.0f , 0.0f , 1.0f);
+        // p4.setTextSize(10.0f);
+
         std::wstring name = L"帧率:";
         renderEngine_->renderText(name + std::to_wstring(showFps) , screenWidth_ - 220.0f, 
             screenHeight_ - 80.0f, p4);
