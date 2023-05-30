@@ -105,6 +105,8 @@ bool worldAddSphere(inout World world , Sphere sphere){
 
 // 创建场景
 void buildScene(inout World world){
+    world.count = 0;
+
     worldAddSphere(world , Sphere(vec3(0.0, 0.0, -1.0) , 0.4));
     worldAddSphere(world , Sphere(vec3(0.0, -100.5, -1.0) , 100.0));
 }
