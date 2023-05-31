@@ -17,8 +17,11 @@ class ShaderDemo;
  * @brief  应用入口
  * 
  */
-static int VIEW_WIDTH = 1024;
-static int VIEW_HEIGHT = 576;
+// static int VIEW_WIDTH = 1024;
+// static int VIEW_HEIGHT = 576;
+
+static int VIEW_WIDTH = 800;
+static int VIEW_HEIGHT = 450;
 
 // int viewWidth_ = 512;
 // int viewHeight_ = 288;

@@ -15,7 +15,7 @@ const int WORLD_MAX_OBJECT_COUNT = 10;//包含最大物体数量
 
 const int SAMPLE_TIMES = 100; //像素点采样次数
 
-const int MAX_RAY_LIST_SIZE = 5;//光线的最大弹射次数
+const int MAX_RAY_LIST_SIZE = 10;//光线的最大弹射次数
 
 float rndDelta = 0.2;
 
@@ -159,7 +159,7 @@ void raySphereHit(Ray ray ,Sphere sphere , inout HitResult result){
         result.isHit = false;
         return;
     }
-    
+
     result.isHit = true;
     result.timeValue = t1 < t2?t1:t2;
     
@@ -203,9 +203,11 @@ vec3 rayColor(inout World world, Ray initRay){
 
         if(hitResult.isHit){ //与物体碰撞
             vec3 N = hitResult.normal;
+
             finalColor *= 0.5;
 
-            Ray reflectRay = Ray(hitResult.hitPosition, N);
+            Ray reflectRay = Ray(hitResult.hitPosition, 
+                vec3(0.0, 0.0, 1.0));
             bool ret = pushRayToList(rayList , reflectRay);
             if(!ret){
                 return BLACK_COLOR;
