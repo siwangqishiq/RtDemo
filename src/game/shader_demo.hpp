@@ -24,6 +24,8 @@ private:
     int viewHeight_;
 
     std::shared_ptr<RenderEngine> renderEngine_;
+
+    float delta = 0.0f;
     
     Shader customRenderShader;
     void testRenderShader();
