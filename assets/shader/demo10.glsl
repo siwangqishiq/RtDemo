@@ -13,7 +13,7 @@ const vec3 BLACK_COLOR = vec3(0.0, 0.0 ,0.0);
 
 const int WORLD_MAX_OBJECT_COUNT = 10;//包含最大物体数量
 
-const int SAMPLE_TIMES = 100; //像素点采样次数
+const int SAMPLE_TIMES = 50; //像素点采样次数
 
 const int MAX_RAY_LIST_SIZE = 10;//光线的最大弹射次数
 
@@ -22,7 +22,7 @@ float rndDelta = 0.2;
 float random(){
     // 二维特殊处理方式
     float seed = 10.0f;
-    // seed = uTime;
+//    seed = uTime;
     rndDelta += seed / 1000.0f + 0.031415926f;
     vec2 uv = gl_FragCoord.xy;
     return fract(sin(dot(uv, vec2(12.9898 + rndDelta,78.233))) * 43758.5453123);
@@ -177,6 +177,19 @@ void raySphereHit(Ray ray ,Sphere sphere , inout HitResult result){
     }
 }
 
+vec3 randomInUnitSphere(){
+    vec3 result = vec3(rnd(-1.0 , 1.0) ,
+                        rnd(-1.0 , 1.0),
+                        rnd(-1.0 , 1.0));
+    while(true){
+        if(length(result) <= 1.0){
+            return result;
+        }
+        result = vec3(rnd(-1.0 , 1.0) ,rnd(-1.0 , 1.0),rnd(-1.0 , 1.0));
+    }
+    return result;
+}
+
 //光线追踪着色
 vec3 rayColor(inout World world, Ray initRay){
     vec3 finalColor = BLACK_COLOR;
@@ -184,6 +197,7 @@ vec3 rayColor(inout World world, Ray initRay){
     RayList rayList;
     rayList.count = 0;
     pushRayToList(rayList , initRay);
+    float atten = 1.0f;
     
     int loopCount = 0;
     while(rayList.count > 0 && loopCount < MAX_RAY_LIST_SIZE){
@@ -203,11 +217,12 @@ vec3 rayColor(inout World world, Ray initRay){
 
         if(hitResult.isHit){ //与物体碰撞
             vec3 N = hitResult.normal;
+            atten *= 0.5f;
 
-            finalColor *= 0.5;
-
+            vec3 tragetPos = hitResult.hitPosition + N + randomInUnitSphere();
+            
             Ray reflectRay = Ray(hitResult.hitPosition, 
-                vec3(0.0, 0.0, 1.0));
+                tragetPos - hitResult.hitPosition);
             bool ret = pushRayToList(rayList , reflectRay);
             if(!ret){
                 return BLACK_COLOR;
@@ -217,7 +232,7 @@ vec3 rayColor(inout World world, Ray initRay){
             vec3 dirNormal = (ray.dir);
             float t = 0.5 * (dirNormal.y + 1.0);
             vec3 originColor = WHITE_COLOR* (1.0 - t) + SKYBLUE_COLOR * (t);
-            finalColor = originColor;
+            finalColor = atten * originColor;
         }
 
         loopCount++;
@@ -247,11 +262,14 @@ void main(){
         vec2 offset = vec2(rnd(-offsetHor , offsetHor) , rnd(-offsetVer , offsetVer));
         Ray ray = getRayFromCamera(camera , offset); //从摄像机生成与当前像素对应的射线
 
-        vec3 color = rayColor(world, ray);
-        resultColor = resultColor + scale * color; 
+        // vec3 color = rayColor(world, ray);
+        vec3 originColor = rayColor(world, ray);
+        resultColor = resultColor + scale * originColor; 
     }//end for i
-    FragColor = vec4(clamp(resultColor.r , 0.0 , 1.0) ,
-                     clamp(resultColor.g , 0.0 , 1.0) ,
-                     clamp(resultColor.b , 0.0 , 1.0) ,  
+
+    float gamma = 2.2;
+    FragColor = vec4(clamp(pow(resultColor.r , 1.0/ gamma) , 0.0 , 1.0) ,
+                     clamp(pow(resultColor.g , 1.0/ gamma) , 0.0 , 1.0) ,
+                     clamp(pow(resultColor.b , 1.0/ gamma) , 0.0 , 1.0) ,  
                      1.0);
 }
