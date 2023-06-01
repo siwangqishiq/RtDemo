@@ -241,7 +241,7 @@ vec3 rayColor(inout World world, Ray initRay){
 
         loopCount++;
     }//end while
-
+    
     return finalColor;
 }
 
