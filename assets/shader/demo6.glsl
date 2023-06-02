@@ -8,6 +8,19 @@ out vec4 FragColor;
 
 float rndDelta = 0.2;
 
+float rand1D() { 
+    return fract(sin(gl_FragCoord.x*(91.3458)) * 47453.5453); 
+}
+
+float rand2D(){ 
+    return fract(sin(dot(gl_FragCoord.xy ,vec2(12.9898,78.233))) * 43758.5453); 
+}
+
+float rand3D(){ 
+    vec3 co = gl_FragCoord.xyz;
+    return rand(co.xy+rand1D(co.z)); 
+}
+
 float random(){
     // 二维特殊处理方式
     rndDelta += uTime / 1000.0f + 0.031415926f;
@@ -32,7 +45,6 @@ void main(){
     //     }
     // }//end for i
 
-    
     float value = rnd(0.0 , 0.9f);
     vec3 color = vec3(value , 0.0 , 0.0);
     

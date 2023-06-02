@@ -12,11 +12,13 @@ const vec3 SKYBLUE_COLOR = vec3(0.5, 0.7, 1.0);
 const vec3 RED_COLOR = vec3(1.0 , 0.0 , 0.0);
 const vec3 BLACK_COLOR = vec3(0.0, 0.0 ,0.0);
 
+const float espion_zero = 0.001;
+
 const int WORLD_MAX_OBJECT_COUNT = 10;//包含最大物体数量
 
-const int SAMPLE_TIMES = 100; //像素点采样次数
+const int SAMPLE_TIMES = 16; //像素点采样次数
 
-const int MAX_RAY_LIST_SIZE = 100;//光线的最大弹射次数
+const int MAX_RAY_LIST_SIZE = 8;//光线的最大弹射次数
 
 float rndDelta = 0.3;
 
@@ -137,9 +139,9 @@ bool worldAddSphere(inout World world , Sphere sphere){
 void buildScene(inout World world){
     world.count = 0;
 
-    worldAddSphere(world , Sphere(vec3(-1.0, 0.0, -2.0) , 0.5));
-    worldAddSphere(world , Sphere(vec3(0.0, 0.2 + uDeltaY, -2.0) , 0.4 + uDeltaY));
-    worldAddSphere(world , Sphere(vec3(1.0, 0.2, -2.0) , 0.5));
+    // worldAddSphere(world , Sphere(vec3(-1.0, 0.0, -2.0) , 0.5));
+    worldAddSphere(world , Sphere(vec3(0.0, 0.2 + uDeltaY, -2.0) , 0.45));
+    // worldAddSphere(world , Sphere(vec3(1.0, 0.2, -2.0) , 0.5));
 
     worldAddSphere(world , Sphere(vec3(0.0, -100.5, -1.0) , 100.0));
 }
@@ -159,7 +161,7 @@ void raySphereHit(Ray ray ,Sphere sphere , inout HitResult result){
 
     float t1 = (-B - sqrt(delta)) / (2.0 * A);
     float t2 = (-B + sqrt(delta)) / (2.0 * A);
-    if(t1 < 0.0 && t2 < 0.0){
+    if(t1 < espion_zero && t2 < espion_zero){
         result.isHit = false;
         return;
     }
@@ -191,7 +193,16 @@ vec3 randomInUnitSphere(){
         }
         result = vec3(rnd(-1.0 , 1.0) ,rnd(-1.0 , 1.0),rnd(-1.0 , 1.0));
     }
-    return result;
+    return normalize(result);
+}
+
+vec3 randomInHemiSphere(vec3 normal) {
+    vec3 inDir = randomInUnitSphere();
+    if(dot(inDir , normal) > 0.0){
+        return inDir;
+    }else{
+        return -inDir;
+    }
 }
 
 //光线追踪着色
@@ -223,8 +234,9 @@ vec3 rayColor(inout World world, Ray initRay){
             vec3 N = hitResult.normal;
             atten *= 0.5f;
 
-            vec3 tragetPos = hitResult.hitPosition + N + randomInUnitSphere();
-            
+            //vec3 tragetPos = hitResult.hitPosition + N + randomInUnitSphere();
+            vec3 tragetPos = hitResult.hitPosition + randomInHemiSphere(hitResult.normal);
+
             Ray reflectRay = Ray(hitResult.hitPosition, 
                 tragetPos - hitResult.hitPosition);
             bool ret = pushRayToList(rayList , reflectRay);
@@ -265,7 +277,7 @@ void main(){
     for(int i = 0 ; i < SAMPLE_TIMES ;i++){
         vec2 offset = vec2(rnd(-offsetHor , offsetHor) , rnd(-offsetVer , offsetVer));
         Ray ray = getRayFromCamera(camera , offset); //从摄像机生成与当前像素对应的射线
-
+        
         // vec3 color = rayColor(world, ray);
         vec3 originColor = rayColor(world, ray);
         resultColor = resultColor + scale * originColor; 

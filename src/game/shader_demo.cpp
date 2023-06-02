@@ -16,7 +16,7 @@ void ShaderDemo::init(){
     isInited = true;
 
     customRenderShader = ShaderManager::getInstance()->loadAssetShader(
-        "shader_demo","shader/shader_vert.glsl","shader/demo11.glsl");
+        "shader_demo","shader/shader_vert.glsl","shader/demo12.glsl");
 }
 
 void ShaderDemo::tick(){
@@ -46,8 +46,8 @@ void ShaderDemo::testRenderShader(){
         customRenderShader.setUniformFloat("uViewHeight",viewHeight_);
         customRenderShader.setUniformFloat("uTime" , static_cast<float>(appContext->frameCount_));
 
-        customRenderShader.setUniformFloat("uDeltaY" , 0.2f * glm::sin(delta));
+        customRenderShader.setUniformFloat("uDeltaY" , 0.3f * glm::sin(delta));
     });
 
-    delta += 0.01f;
+    delta += 0.1f;
 }
