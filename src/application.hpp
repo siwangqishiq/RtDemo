@@ -20,8 +20,8 @@ class ShaderDemo;
 static int VIEW_WIDTH = 1024;
 static int VIEW_HEIGHT = 576;
 
-// static int VIEW_WIDTH = 1024;
-// static int VIEW_HEIGHT = 288;
+// static int VIEW_WIDTH = 1920;
+// static int VIEW_HEIGHT = 1080;
 
 // int viewWidth_ = 512;
 // int viewHeight_ = 288;

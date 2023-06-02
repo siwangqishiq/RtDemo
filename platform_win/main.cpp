@@ -29,6 +29,8 @@ static bool MouseActionDown = false;
 static int mouseX = 0;
 static int mouseY = 0;
 
+static bool isFullScreen = false;
+
 int main(int argc , char *argv[]){
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -39,11 +41,12 @@ int main(int argc , char *argv[]){
 
     //todo create instance
     std::shared_ptr<WinApplication> app = std::make_shared<WinApplication>();
-
+    
+    GLFWmonitor *mointor = isFullScreen?glfwGetPrimaryMonitor():nullptr;
     GLFWwindow* window = glfwCreateWindow(
                             app->viewWidth_, 
                             app->viewHeight_, 
-                            "run", nullptr, nullptr);
+                            "run", mointor, nullptr);
     
     if (window == nullptr) {
         std::cerr << "Failed to create GLFW window" << std::endl;

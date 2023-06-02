@@ -16,7 +16,7 @@ const float espion_zero = 0.001;
 
 const int WORLD_MAX_OBJECT_COUNT = 10;//包含最大物体数量
 
-const int SAMPLE_TIMES = 16; //像素点采样次数
+const int SAMPLE_TIMES = 32; //像素点采样次数
 
 const int MAX_RAY_LIST_SIZE = 8;//光线的最大弹射次数
 
@@ -25,7 +25,7 @@ float rndDelta = 0.3;
 float random(){
     // 二维特殊处理方式
     float seed = 10.0f;
-//    seed = uTime;
+    // seed = uTime;
     rndDelta += seed / 1000.0f + 0.031415926f;
     vec2 uv = gl_FragCoord.xy;
     return fract(sin(dot(uv, rndDelta * vec2(12.9898,78.233))) * 43758.5453123);
@@ -187,12 +187,12 @@ vec3 randomInUnitSphere(){
     vec3 result = vec3(rnd(-1.0 , 1.0) ,
                         rnd(-1.0 , 1.0),
                         rnd(-1.0 , 1.0));
-    while(true){
-        if(length(result) <= 1.0){
-            return result;
-        }
-        result = vec3(rnd(-1.0 , 1.0) ,rnd(-1.0 , 1.0),rnd(-1.0 , 1.0));
-    }
+    // while(true){
+    //     if(length(result) <= 1.0){
+    //         return result;
+    //     }
+    //     result = vec3(rnd(-1.0 , 1.0) ,rnd(-1.0 , 1.0),rnd(-1.0 , 1.0));
+    // }
     return normalize(result);
 }
 
