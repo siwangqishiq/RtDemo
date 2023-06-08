@@ -14,9 +14,9 @@ const vec3 BLACK_COLOR = vec3(0.0, 0.0 ,0.0);
 
 const int WORLD_MAX_OBJECT_COUNT = 10;//包含最大物体数量
 
-const int SAMPLE_TIMES = 100; //像素点采样次数
+const int SAMPLE_TIMES = 32; //像素点采样次数
 
-const int MAX_RAY_LIST_SIZE = 100;//光线的最大弹射次数
+const int MAX_RAY_LIST_SIZE = 2;//光线的最大弹射次数
 
 float rndDelta = 0.3;
 
@@ -256,7 +256,7 @@ void main(){
     Camera camera;  //创建摄像机
     initCamera(camera);
 
-    vec3 resultColor;
+    vec3 resultColor = vec3(0.0,0.0,0.0);
     float scale = 1.0 / float(SAMPLE_TIMES);
 
     float offsetHor = 1.0f / (2.0 * uViewWidth);

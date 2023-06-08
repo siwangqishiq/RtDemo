@@ -169,7 +169,7 @@ void main(){
     Camera camera;  //创建摄像机
     initCamera(camera);
 
-    vec3 resultColor;
+    vec3 resultColor = vec3(0.0 , 0.0 , 0.0);
     float scale = 1.0 / float(SAMPLE_TIMES);
 
     float offsetHor = 1.0f / (2.0 * uViewWidth);
