@@ -1,4 +1,5 @@
-precision highp float;
+precision lowp float;
+precision lowp int;
 
 uniform float uViewWidth;
 uniform float uViewHeight;
@@ -14,11 +15,11 @@ const vec3 BLACK_COLOR = vec3(0.0, 0.0 ,0.0);
 
 const float espion_zero = 0.001;
 
-const int WORLD_MAX_OBJECT_COUNT = 10;//包含最大物体数量
+const int WORLD_MAX_OBJECT_COUNT = 5;//包含最大物体数量
 
-const int SAMPLE_TIMES = 32; //像素点采样次数
+const int SAMPLE_TIMES = 16; //像素点采样次数
 
-const int MAX_RAY_LIST_SIZE = 16;//光线的最大弹射次数
+const int MAX_RAY_LIST_SIZE = 8;//光线的最大弹射次数
 
 const int MATERIAL_TYPE_LAMBERTIAN = 1;//材质 漫反射
 const int MATERIAL_TYPE_METAL = 2;//材质 金属

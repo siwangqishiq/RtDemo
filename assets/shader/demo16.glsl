@@ -1,9 +1,11 @@
 precision highp float;
+precision lowp int;
 
 uniform float uViewWidth;
 uniform float uViewHeight;
 uniform float uTime;
 uniform float uDeltaY;
+uniform float uFuzz;
 
 out vec4 FragColor;
 
@@ -14,11 +16,11 @@ const vec3 BLACK_COLOR = vec3(0.0, 0.0 ,0.0);
 
 const float espion_zero = 0.001;
 
-const int WORLD_MAX_OBJECT_COUNT = 10;//包含最大物体数量
+const int WORLD_MAX_OBJECT_COUNT = 5;//包含最大物体数量
 
 const int SAMPLE_TIMES = 32; //像素点采样次数
 
-const int MAX_RAY_LIST_SIZE = 16;//光线的最大弹射次数
+const int MAX_RAY_LIST_SIZE = 5;//光线的最大弹射次数
 
 const int MATERIAL_TYPE_LAMBERTIAN = 1;//材质 漫反射
 const int MATERIAL_TYPE_METAL = 2;//材质 金属
@@ -43,9 +45,10 @@ float rnd(float min , float max){
 struct Material{
     int type;
     vec3 albedo;
+    float fuzz;
 };
 
-const Material EmptyMaterial = Material(MATERIAL_TYPE_NONE , vec3(0.0 , 0.0 , 0.0));
+const Material EmptyMaterial = Material(MATERIAL_TYPE_NONE , vec3(0.0 , 0.0 , 0.0) , 0.0);
 
 struct Ray{
     vec3 origin;
@@ -153,15 +156,13 @@ bool worldAddSphere(inout World world , Sphere sphere){
 // 创建场景
 void buildScene(inout World world){
     world.count = 0;
-    worldAddSphere(world , Sphere(vec3(-1.0, 0.0, -2.0) , 
-        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.8, 0.8))));
-    worldAddSphere(world , Sphere(vec3(0.0, 0.2 + uDeltaY, -2.0) , 
-        0.45 ,Material(MATERIAL_TYPE_METAL , vec3(1.0, 1.0, 1.0))));
-    worldAddSphere(world , Sphere(vec3(1.0, 0.0, -2.0) , 
-        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.6, 0.2))));
-    
+    worldAddSphere(world , Sphere(vec3(-0.6, 0.0, -2.0) , 
+        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.8, 0.8) , 0.0)));
+    worldAddSphere(world , Sphere(vec3(0.6, 0.0, -2.0) , 
+        0.5 ,Material(MATERIAL_TYPE_METAL , vec3(1.0, 1.0, 1.0) , uFuzz)));
+        
     worldAddSphere(world , Sphere(vec3(0.0, -100.5, -1.0) , 
-        100.0 ,Material(MATERIAL_TYPE_LAMBERTIAN , vec3(0.8, 0.8 , 0.0))));
+        100.0 ,Material(MATERIAL_TYPE_LAMBERTIAN , vec3(0.8, 0.8 , 0.0) ,0.0)));
 }
 
 //检测射线是否与球体相交
@@ -233,7 +234,7 @@ bool metalMatScatter(inout Material mat ,
      inout vec3 atten,inout Ray scatterRay){
     vec3 reflectedDir = reflect(rayIn.dir, hitResult.normal);
     atten *= (0.5 * mat.albedo);
-    scatterRay = Ray(hitResult.hitPosition , reflectedDir);
+    scatterRay = Ray(hitResult.hitPosition , reflectedDir + mat.fuzz * randomInUnitSphere());
     return dot(scatterRay.dir , hitResult.normal) > 0.0;
 }
 
