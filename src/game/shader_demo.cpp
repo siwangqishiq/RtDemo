@@ -16,7 +16,7 @@ void ShaderDemo::init(){
     isInited = true;
 
     customRenderShader = ShaderManager::getInstance()->loadAssetShader(
-        "shader_demo","shader/shader_vert.glsl","shader/demo16.glsl");
+        "shader_demo","shader/shader_vert.glsl","shader/demo17.glsl");
 }
 
 void ShaderDemo::tick(){
@@ -25,6 +25,13 @@ void ShaderDemo::tick(){
 
 void ShaderDemo::dispose(){
     
+}
+
+void ShaderDemo::onKeyAction(int keyCode , int action, int mods){
+    Logi("shaderDemo" , "onkey action code :%d , action : %d , mods:%d",keyCode , action, mods);
+    if(keyCode >= 49 && keyCode < 58 && action == 1){
+        maxRayRelectTimes_ = keyCode - 49;
+    }
 }
 
 
@@ -42,10 +49,11 @@ void ShaderDemo::testRenderShader(){
 
     // Logi("ShaderDemo" , "testRenderShader");
     renderEngine_->renderShader(customRenderShader , viewRect, [this](){
+        customRenderShader.setUniformInt("uRayMaxReflectTimes", maxRayRelectTimes_);
         customRenderShader.setUniformFloat("uViewWidth",viewWidth_);
         customRenderShader.setUniformFloat("uViewHeight",viewHeight_);
         customRenderShader.setUniformFloat("uTime" , static_cast<float>(appContext->frameCount_));
-
+        
         customRenderShader.setUniformFloat("uFuzz" , 
             static_cast<float>(0.5f * glm::sin(delta) + 0.5f));
 

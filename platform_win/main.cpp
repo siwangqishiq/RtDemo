@@ -76,7 +76,12 @@ int main(int argc , char *argv[]){
     });
 
     glfwSetKeyCallback(window , [](GLFWwindow* windows_,int key,int scancode,int action,int mods){
-        // std::cout << "key " << key << "  scancode " << scancode << " action " << action << std::endl;
+        std::cout << "key " << key << "  scancode " << scancode << " action " << action << std::endl;
+        // Application::ReflectTimes = (scancode - 1);
+        void* app_ = glfwGetWindowUserPointer(windows_);
+        std::shared_ptr<WinApplication> app= 
+            *(static_cast<std::shared_ptr<WinApplication> *>(app_));
+        app->onKeyAction(key , action , mods);
     });
 
     // glad: load all OpenGL function pointers

@@ -55,6 +55,8 @@ public:
 
     virtual void free();
 
+    virtual void onKeyAction(int keyCode , int action, int mods);
+
     ~Application();
 
     std::shared_ptr<RenderEngine> getRender() {

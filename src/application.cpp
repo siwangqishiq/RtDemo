@@ -49,6 +49,12 @@ void Application::free(){
     onFree();
 }
 
+void Application::onKeyAction(int keyCode , int action, int mods){
+    if(shaderDemo_ != nullptr){
+        shaderDemo_->onKeyAction(keyCode , action , mods);
+    }
+}
+
 Application::~Application(){
     Logi(TAG , "~app Application");
 }

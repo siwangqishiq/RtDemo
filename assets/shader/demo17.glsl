@@ -1,11 +1,10 @@
 precision highp float;
-precision lowp int;
 
 uniform float uViewWidth;
 uniform float uViewHeight;
 uniform float uTime;
 uniform float uDeltaY;
-uniform float uFuzz;
+uniform int uRayMaxReflectTimes;
 
 out vec4 FragColor;
 
@@ -16,11 +15,11 @@ const vec3 BLACK_COLOR = vec3(0.0, 0.0 ,0.0);
 
 const float espion_zero = 0.001;
 
-const int WORLD_MAX_OBJECT_COUNT = 20;//包含最大物体数量
+const int WORLD_MAX_OBJECT_COUNT = 10;//包含最大物体数量
 
-const int SAMPLE_TIMES = 32; //像素点采样次数
+const int SAMPLE_TIMES = 8; //像素点采样次数
 
-const int MAX_RAY_LIST_SIZE = 8;//光线的最大弹射次数
+const int MAX_RAY_LIST_SIZE = 16;//光线的最大弹射次数
 
 const int MATERIAL_TYPE_LAMBERTIAN = 1;//材质 漫反射
 const int MATERIAL_TYPE_METAL = 2;//材质 金属
@@ -28,10 +27,12 @@ const int MATERIAL_TYPE_NONE = 3;//材质
 
 float rndDelta = 0.3;
 
+int maxRayRelectTimes = MAX_RAY_LIST_SIZE;
+
 float random(){
     // 二维特殊处理方式
     float seed = 10.0f;
-//    seed = uTime;
+    // seed = uTime;
     rndDelta += seed / 1000.0f + 0.031415926f;
     vec2 uv = gl_FragCoord.xy;
     return fract(sin(dot(uv, rndDelta * vec2(12.9898,78.233))) * 43758.5453123);
@@ -45,10 +46,9 @@ float rnd(float min , float max){
 struct Material{
     int type;
     vec3 albedo;
-    float fuzz;
 };
 
-const Material EmptyMaterial = Material(MATERIAL_TYPE_NONE , vec3(0.0 , 0.0 , 0.0) , 0.0);
+const Material EmptyMaterial = Material(MATERIAL_TYPE_NONE , vec3(0.0 , 0.0 , 0.0));
 
 struct Ray{
     vec3 origin;
@@ -156,13 +156,15 @@ bool worldAddSphere(inout World world , Sphere sphere){
 // 创建场景
 void buildScene(inout World world){
     world.count = 0;
-    worldAddSphere(world , Sphere(vec3(-0.6, 0.01, -2.0) , 
-        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.8, 0.8) , 0.05)));
-    worldAddSphere(world , Sphere(vec3(0.6, 0.01, -2.0) , 
-        0.5 ,Material(MATERIAL_TYPE_METAL , vec3(0.5, 0.7, 0.5) , uFuzz)));
-        
-     worldAddSphere(world , Sphere(vec3(0.0, -100.5, -1.0) , 
-        100.0 ,Material(MATERIAL_TYPE_LAMBERTIAN , vec3(0.8, 0.8 , 0.0) , 0.0)));
+    worldAddSphere(world , Sphere(vec3(-1.0, 0.0, -2.0) , 
+        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.8, 0.8))));
+    worldAddSphere(world , Sphere(vec3(0.0, 0.2 + uDeltaY, -2.0) , 
+        0.45 ,Material(MATERIAL_TYPE_METAL , vec3(1.0, 1.0, 1.0))));
+    worldAddSphere(world , Sphere(vec3(1.0, 0.0, -2.0) , 
+        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.6, 0.2))));
+    
+    worldAddSphere(world , Sphere(vec3(0.0, -100.5, -1.0) , 
+        100.0 ,Material(MATERIAL_TYPE_LAMBERTIAN , vec3(0.8, 0.8 , 0.0))));
 }
 
 //检测射线是否与球体相交
@@ -234,7 +236,7 @@ bool metalMatScatter(inout Material mat ,
      inout vec3 atten,inout Ray scatterRay){
     vec3 reflectedDir = reflect(rayIn.dir, hitResult.normal);
     atten *= (0.5 * mat.albedo);
-    scatterRay = Ray(hitResult.hitPosition , reflectedDir + mat.fuzz * randomInUnitSphere());
+    scatterRay = Ray(hitResult.hitPosition , reflectedDir);
     return dot(scatterRay.dir , hitResult.normal) > 0.0;
 }
 
@@ -261,7 +263,7 @@ vec3 rayColor(inout World world, Ray initRay){
     vec3 atten = vec3(1.0 , 1.0 , 1.0);
     
     int loopCount = 0;
-    while(rayList.count > 0 && loopCount < MAX_RAY_LIST_SIZE){
+    while(rayList.count > 0 && loopCount < maxRayRelectTimes){
         Ray ray = popRayFromList(rayList);
         HitResult hitResult = HitResult(false , -1.0 , false , 
                 vec3(0.0 , 0.0 , 0.0), 
@@ -300,14 +302,14 @@ vec3 rayColor(inout World world, Ray initRay){
 }
 
 void main(){
+    maxRayRelectTimes = uRayMaxReflectTimes;
     World world;
     buildScene(world); //构造场景物体
 
     Camera camera;  //创建摄像机
     initCamera(camera);
 
-    vec3 resultColor = vec3(0.0, 0.0, 0.0);
-
+    vec3 resultColor;
     float scale = 1.0 / float(SAMPLE_TIMES);
 
     float offsetHor = 1.0f / (2.0 * uViewWidth);
