@@ -24,7 +24,7 @@ private:
 
     int viewWidth_;
     int viewHeight_;
-    int maxRayRelectTimes_ = 2;
+    int maxRayRelectTimes_ = 16;
 
     std::shared_ptr<RenderEngine> renderEngine_;
 
@@ -32,4 +32,4 @@ private:
     
     Shader customRenderShader;
     void testRenderShader();
-};
+}; 

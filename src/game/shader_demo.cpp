@@ -16,7 +16,7 @@ void ShaderDemo::init(){
     isInited = true;
 
     customRenderShader = ShaderManager::getInstance()->loadAssetShader(
-        "shader_demo","shader/shader_vert.glsl","shader/demo17.glsl");
+        "shader_demo","shader/shader_vert.glsl","shader/demo19.glsl");
 }
 
 void ShaderDemo::tick(){
@@ -30,7 +30,7 @@ void ShaderDemo::dispose(){
 void ShaderDemo::onKeyAction(int keyCode , int action, int mods){
     Logi("shaderDemo" , "onkey action code :%d , action : %d , mods:%d",keyCode , action, mods);
     if(keyCode >= 49 && keyCode < 58 && action == 1){
-        maxRayRelectTimes_ = keyCode - 49;
+        maxRayRelectTimes_ = keyCode - 48;
     }
 }
 

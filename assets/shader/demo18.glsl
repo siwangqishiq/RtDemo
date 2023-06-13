@@ -23,7 +23,8 @@ const int MAX_RAY_LIST_SIZE = 16;//光线的最大弹射次数
 
 const int MATERIAL_TYPE_LAMBERTIAN = 1;//材质 漫反射
 const int MATERIAL_TYPE_METAL = 2;//材质 金属
-const int MATERIAL_TYPE_NONE = 3;//材质 
+const int MATERIAL_TYPE_DIELECTRIC = 3;//材质 透明
+const int MATERIAL_TYPE_NONE = 0;//材质 
 
 float rndDelta = 0.3;
 
@@ -46,9 +47,10 @@ float rnd(float min , float max){
 struct Material{
     int type;
     vec3 albedo;
+    float fuzz;
 };
 
-const Material EmptyMaterial = Material(MATERIAL_TYPE_NONE , vec3(0.0 , 0.0 , 0.0));
+const Material EmptyMaterial = Material(MATERIAL_TYPE_NONE , vec3(0.0 , 0.0 , 0.0) , 0.0);
 
 struct Ray{
     vec3 origin;
@@ -156,15 +158,21 @@ bool worldAddSphere(inout World world , Sphere sphere){
 // 创建场景
 void buildScene(inout World world){
     world.count = 0;
+    //left
     worldAddSphere(world , Sphere(vec3(-1.0, 0.0, -2.0) , 
-        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.8, 0.8))));
+        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.8, 0.8) , 0.3)));
+
+    //middle
     worldAddSphere(world , Sphere(vec3(0.0, 0.2 + uDeltaY, -2.0) , 
-        0.45 ,Material(MATERIAL_TYPE_METAL , vec3(1.0, 1.0, 1.0))));
+        0.5 ,Material(MATERIAL_TYPE_LAMBERTIAN , vec3(0.7, 0.3, 0.3) , 0.0)));
+
+    //right
     worldAddSphere(world , Sphere(vec3(1.0, 0.0, -2.0) , 
-        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.6, 0.2))));
-    
+        0.5  ,Material(MATERIAL_TYPE_METAL , vec3(0.8, 0.6, 0.2) , 1.0)));
+
+    //ground
     worldAddSphere(world , Sphere(vec3(0.0, -100.5, -1.0) , 
-        100.0 ,Material(MATERIAL_TYPE_LAMBERTIAN , vec3(0.8, 0.8 , 0.0))));
+        100.0 ,Material(MATERIAL_TYPE_LAMBERTIAN , vec3(0.8, 0.8 , 0.0) , 0.0)));
 }
 
 //检测射线是否与球体相交
@@ -223,32 +231,87 @@ vec3 randomInHemiSphere(vec3 normal) {
 
 //漫反射材质
 bool lambertMatScatter(inout Material mat,inout Ray rayIn, inout HitResult hitResult, 
-     inout vec3 atten,inout Ray scatterRay){
-    atten *= (0.6 * mat.albedo);
+     inout vec3 atten,inout Ray scatterRay , inout vec3 finalColor){
+    // atten *= (0.5 * mat.albedo);
     vec3 tragetPos = hitResult.hitPosition + randomInHemiSphere(hitResult.normal);
     scatterRay = Ray(hitResult.hitPosition, tragetPos - hitResult.hitPosition);
+
+    atten = (atten * mat.albedo);
+    // atten = 0.5 * atten;
+
     return true;
 }
 
 //金属材质
 bool metalMatScatter(inout Material mat ,
      inout Ray rayIn, inout HitResult hitResult, 
-     inout vec3 atten,inout Ray scatterRay){
+     inout vec3 atten,inout Ray scatterRay , inout vec3 finalColor){
     vec3 reflectedDir = reflect(rayIn.dir, hitResult.normal);
-    atten *= (0.5 * mat.albedo);
-    scatterRay = Ray(hitResult.hitPosition , reflectedDir);
+    // atten *= (0.5 * mat.albedo);
+    scatterRay = Ray(hitResult.hitPosition , 
+        normalize(reflectedDir + mat.fuzz * randomInUnitSphere()));
+    
+    atten = (atten * mat.albedo);
+    // atten = 0.5 * atten;
+
     return dot(scatterRay.dir , hitResult.normal) > 0.0;
+}
+
+//模拟透明体的近似镜面反射
+float reflectance(float cosine , float refIdx){
+    float r0 = (1.0 - refIdx) / (1.0 + refIdx);
+    r0 = r0 * r0;
+    return r0 + (1.0 - r0)* pow(1.0 - cosine , 5.0);
+}
+
+vec3 refracts(vec3 dir ,vec3 N, float refractRatio){
+    float cosTheta = min(dot(-dir , N) , 1.0);
+    vec3 rayOutVer = refractRatio*(dir + cosTheta * N);
+    vec3 rayOutHor = -sqrt(abs(1.0 - dot(rayOutVer , rayOutVer))) * N;
+    return rayOutVer + rayOutHor;
+}
+
+//透明材质
+bool dielectricMatScatter(inout Material mat ,
+    inout Ray rayIn, inout HitResult hitResult, 
+    inout vec3 atten,inout Ray scatterRay , inout vec3 finalColor){
+    
+    float ir = mat.fuzz;
+    float refractionRatio = (hitResult.frontFace)?(1.0 / ir):ir;
+    
+    float cosTheta = min(dot(-rayIn.dir , hitResult.normal) , 1.0);
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+
+    bool cannotRefract = refractionRatio * sinTheta > 1.0;
+    vec3 direction;
+    // if (cannotRefract || reflectance(cosTheta , refractionRatio) > random()){
+    //     direction = reflect(rayIn.dir, hitResult.normal);
+    //     atten *= (0.5 * mat.albedo);
+    // }else{
+    //     direction = refracts(rayIn.dir , hitResult.normal, refractionRatio);
+    //     atten *= (1.0 * mat.albedo);
+    // }
+
+    direction = refracts(rayIn.dir , hitResult.normal, refractionRatio);
+
+    scatterRay = Ray(hitResult.hitPosition , direction);
+    return true;
 }
 
 //依据物体材质 生成反射光
 bool materialScatter(inout Material mat , 
      inout Ray rayIn, inout HitResult hitResult, 
-     inout vec3 atten,inout Ray scatterRay){
+     inout vec3 atten,inout Ray scatterRay , inout vec3 finalColor){
     switch(mat.type){
         case MATERIAL_TYPE_LAMBERTIAN:
-            return lambertMatScatter(mat , rayIn , hitResult , atten , scatterRay);
+            return lambertMatScatter(mat , rayIn , hitResult , atten , 
+                    scatterRay , finalColor);
         case MATERIAL_TYPE_METAL:
-            return metalMatScatter(mat , rayIn , hitResult , atten , scatterRay);
+            return metalMatScatter(mat , rayIn , hitResult , 
+                atten , scatterRay, finalColor);
+        case MATERIAL_TYPE_DIELECTRIC:
+            return dielectricMatScatter(mat , rayIn , hitResult ,
+                 atten , scatterRay, finalColor);
     }//end switch
     return false;
 }
@@ -281,7 +344,8 @@ vec3 rayColor(inout World world, Ray initRay){
 
         if(hitResult.isHit){ //与物体碰撞
             Ray scatterRay = Ray(vec3(0.0, 0.0, 0.0) , vec3(1.0 , 0.0 , 0.0));
-            if(materialScatter(hitResult.material , ray , hitResult , atten , scatterRay)){
+            if(materialScatter(hitResult.material , ray , hitResult , 
+                atten , scatterRay, finalColor)){
                 bool ret = pushRayToList(rayList , scatterRay);
                 if(!ret){
                     return BLACK_COLOR;
@@ -318,7 +382,6 @@ void main(){
     for(int i = 0 ; i < SAMPLE_TIMES ;i++){
         vec2 offset = vec2(rnd(-offsetHor , offsetHor) , rnd(-offsetVer , offsetVer));
         Ray ray = getRayFromCamera(camera , offset); //从摄像机生成与当前像素对应的射线
-        // vec3 color = rayColor(world, ray);
         vec3 originColor = rayColor(world, ray);
         resultColor = resultColor + scale * originColor; 
     }//end for i
